@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(npm install @authropic/claude-code)",
+      "Bash(npm install @anthropic-ai/claude-code)",
+      "Bash(chmod +x C:Users20111223codeclaude-code-router-haierdocstest-streaming.sh)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
