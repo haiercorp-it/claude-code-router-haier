@@ -19,6 +19,7 @@ import { join } from "path";
 const command = process.argv[2];
 
 const HELP_TEXT = `
+Welcome to Haier Claude Code Router!
 Usage: ccr [command]
 
 Commands:
