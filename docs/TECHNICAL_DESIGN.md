@@ -405,7 +405,7 @@ export class AuthAdapter implements IAdapter {
     if (!session || this.tokenManager.isExpired(session)) {
       return reply.code(401).send({
         error: 'authentication_required',
-        message: 'Please login first: ccr login'
+        message: 'Please login first: hccr login'
       });
     }
 
@@ -1161,9 +1161,9 @@ CREATE INDEX idx_events_timestamp ON events(timestamp);
 
 **开源模式:**
 ```bash
-npm install -g @musistudio/claude-code-router
-ccr start
-ccr code
+npm install -g @haier/claude-code-router
+hhccr start
+hhccr code
 ```
 
 **企业模式:**
@@ -1179,9 +1179,9 @@ cat > ~/.claude-code-router/config.json <<EOF
 }
 EOF
 
-ccr login
-ccr start
-ccr code
+hccr login
+hccr start
+hccr code
 ```
 
 ### 6.2 后台服务部署

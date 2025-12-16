@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-RUN npm install -g @musistudio/claude-code-router
+RUN npm install -g @haier/claude-code-router
 
 EXPOSE 3456
 

@@ -23,7 +23,7 @@
 - **Multi-Provider Support**: Supports various model providers like OpenRouter, DeepSeek, Ollama, Gemini, Volcengine, and SiliconFlow.
 - **Request/Response Transformation**: Customize requests and responses for different providers using transformers.
 - **Dynamic Model Switching**: Switch models on-the-fly within Claude Code using the `/model` command.
-- **CLI Model Management**: Manage models and providers directly from the terminal with `ccr model`.
+- **CLI Model Management**: Manage models and providers directly from the terminal with `hhccr model`.
 - **GitHub Actions Integration**: Trigger Claude Code tasks in your GitHub workflows.
 - **Plugin System**: Extend functionality with custom transformers.
 
@@ -40,7 +40,7 @@ npm install -g @anthropic-ai/claude-code
 Then, install Claude Code Router:
 
 ```shell
-npm install -g @musistudio/claude-code-router
+npm install -g @haier/claude-code-router
 ```
 
 ### 2. Configuration
@@ -53,7 +53,7 @@ The `config.json` file has several key sections:
 - **`LOG`** (optional): You can enable logging by setting it to `true`. When set to `false`, no log files will be created. Default is `true`.
 - **`LOG_LEVEL`** (optional): Set the logging level. Available options are: `"fatal"`, `"error"`, `"warn"`, `"info"`, `"debug"`, `"trace"`. Default is `"debug"`.
 - **Logging Systems**: The Claude Code Router uses two separate logging systems:
-  - **Server-level logs**: HTTP requests, API calls, and server events are logged using pino in the `~/.claude-code-router/logs/` directory with filenames like `ccr-*.log`
+  - **Server-level logs**: HTTP requests, API calls, and server events are logged using pino in the `~/.claude-code-router/logs/` directory with filenames like `hccr-*.log`
   - **Application-level logs**: Routing decisions and business logic events are logged in `~/.claude-code-router/claude-code-router.log`
 - **`APIKEY`** (optional): You can set a secret key to authenticate requests. When set, clients must provide this key in the `Authorization` header (e.g., `Bearer your-secret-key`) or the `x-api-key` header. Example: `"APIKEY": "your-secret-key"`.
 - **`HOST`** (optional): You can set the host address for the server. If `APIKEY` is not set, the host will be forced to `127.0.0.1` for security reasons to prevent unauthorized access. Example: `"HOST": "0.0.0.0"`.
@@ -208,13 +208,13 @@ Here is a comprehensive example:
 Start Claude Code using the router:
 
 ```shell
-ccr code
+hccr code
 ```
 
 > **Note**: After modifying the configuration file, you need to restart the service for the changes to take effect:
 >
 > ```shell
-> ccr restart
+> hccr restart
 > ```
 
 ### 4. UI Mode
@@ -222,7 +222,7 @@ ccr code
 For a more intuitive experience, you can use the UI mode to manage your configuration:
 
 ```shell
-ccr ui
+hccr ui
 ```
 
 This will open a web-based interface where you can easily view and edit your `config.json` file.
@@ -234,7 +234,7 @@ This will open a web-based interface where you can easily view and edit your `co
 For users who prefer terminal-based workflows, you can use the interactive CLI model selector:
 
 ```shell
-ccr model
+hccr model
 ```
 ![](blog/images/models.gif)
 
@@ -262,12 +262,12 @@ The `activate` command allows you to set up environment variables globally in yo
 To activate the environment variables, run:
 
 ```shell
-eval "$(ccr activate)"
+eval "$(hccr activate)"
 ```
 
 This command outputs the necessary environment variables in shell-friendly format, which are then set in your current shell session. After activation, you can:
 
-- **Use `claude` command directly**: Run `claude` commands without needing to use `ccr code`. The `claude` command will automatically route requests through Claude Code Router.
+- **Use `claude` command directly**: Run `claude` commands without needing to use `hhccr code`. The `claude` command will automatically route requests through Claude Code Router.
 - **Integrate with Agent SDK applications**: Applications built with the Anthropic Agent SDK will automatically use the configured router and models.
 
 The `activate` command sets the following environment variables:
@@ -279,7 +279,7 @@ The `activate` command sets the following environment variables:
 - `DISABLE_COST_WARNINGS`: Disables cost warnings
 - `API_TIMEOUT_MS`: API timeout from your configuration
 
-> **Note**: Make sure the Claude Code Router service is running (`ccr start`) before using the activated environment variables. The environment variables are only valid for the current shell session. To make them persistent, you can add `eval "$(ccr activate)"` to your shell configuration file (e.g., `~/.zshrc` or `~/.bashrc`).
+> **Note**: Make sure the Claude Code Router service is running (`hhccr start`) before using the activated environment variables. The environment variables are only valid for the current shell session. To make them persistent, you can add `eval "$(hccr activate)"` to your shell configuration file (e.g., `~/.zshrc` or `~/.bashrc`).
 
 #### Providers
 
@@ -516,7 +516,7 @@ jobs:
 
       - name: Start Claude Code Router
         run: |
-          nohup ~/.bun/bin/bunx @musistudio/claude-code-router@1.0.8 start &
+          nohup ~/.bun/bin/bunx @haier/claude-code-router@1.0.8 start &
         shell: bash
 
       - name: Run Claude Code

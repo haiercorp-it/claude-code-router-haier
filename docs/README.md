@@ -121,10 +121,10 @@
 
 **CLI 命令:**
 ```bash
-ccr login        # OAuth 登录
-ccr whoami       # 查看当前用户
-ccr quota        # 查看配额状态
-ccr code         # 使用 Claude Code
+hccr login        # OAuth 登录
+hccr whoami       # 查看当前用户
+hccr quota        # 查看配额状态
+hccr code         # 使用 Claude Code
 ```
 
 **配额展示:**

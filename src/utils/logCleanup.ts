@@ -21,9 +21,9 @@ export async function cleanupLogFiles(maxFiles: number = 9): Promise<void> {
     // Read all files in the logs directory
     const files = await fs.readdir(logsDir);
     
-    // Filter for log files (files starting with 'ccr-' and ending with '.log')
+    // Filter for log files (files starting with 'hccr-' and ending with '.log')
     const logFiles = files
-      .filter(file => file.startsWith('ccr-') && file.endsWith('.log'))
+      .filter(file => file.startsWith('hccr-') && file.endsWith('.log'))
       .sort()
       .reverse(); // Sort in descending order (newest first)
     

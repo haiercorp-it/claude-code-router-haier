@@ -106,7 +106,7 @@ async function run(options: RunOptions = {}) {
     var hour = pad(time.getHours());
     var minute = pad(time.getMinutes());
 
-    return `./logs/ccr-${month}${day}${hour}${minute}${pad(time.getSeconds())}${index ? `_${index}` : ''}.log`;
+    return `./logs/hccr-${month}${day}${hour}${minute}${pad(time.getSeconds())}${index ? `_${index}` : ''}.log`;
   };
   const loggerConfig =
     config.LOG !== false

@@ -2,7 +2,7 @@ import { readConfigFile } from ".";
 
 /**
  * Get environment variables for Agent SDK/Claude Code integration
- * This function is shared between `ccr env` and `ccr code` commands
+ * This function is shared between `hccr env` and `hccr code` commands
  */
 export const createEnvVariables = async () => {
   const config = await readConfigFile();
@@ -17,7 +17,7 @@ export const createEnvVariables = async () => {
     DISABLE_TELEMETRY: "true",
     DISABLE_COST_WARNINGS: "true",
     API_TIMEOUT_MS: String(config.API_TIMEOUT_MS ?? 600000),
-    // Reset CLAUDE_CODE_USE_BEDROCK when running with ccr
+    // Reset CLAUDE_CODE_USE_BEDROCK when running with hccr
     CLAUDE_CODE_USE_BEDROCK: undefined,
   };
 }

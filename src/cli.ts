@@ -20,7 +20,7 @@ const command = process.argv[2];
 
 const HELP_TEXT = `
 Welcome to Haier Claude Code Router!
-Usage: ccr [command]
+Usage: hccr [command]
 
 Commands:
   start         Start server
@@ -36,11 +36,11 @@ Commands:
   -h, help      Show help information
 
 Example:
-  ccr start
-  ccr code "Write a Hello World"
-  ccr model
-  eval "$(ccr activate)"  # Set environment variables globally
-  ccr ui
+  hccr start
+  hccr code "Write a Hello World"
+  hccr model
+  eval "$(hccr activate)"  # Set environment variables globally
+  hccr ui
 `;
 
 async function waitForService(
@@ -158,7 +158,7 @@ async function main() {
           executeCodeCommand(codeArgs);
         } else {
           console.error(
-            "Service startup timeout, please manually run `ccr start` to start the service"
+            "Service startup timeout, please manually run `hccr start` to start the service"
           );
           process.exit(1);
         }
@@ -240,7 +240,7 @@ async function main() {
             if (!(await waitForService(15000))) {
               // Wait a bit longer for the first start
               console.error(
-                "Service startup still failing. Please manually run `ccr start` to start the service and check the logs."
+                "Service startup still failing. Please manually run `hccr start` to start the service and check the logs."
               );
               process.exit(1);
             }

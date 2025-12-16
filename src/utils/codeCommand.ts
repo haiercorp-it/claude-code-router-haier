@@ -20,7 +20,7 @@ export async function executeCodeCommand(args: string[] = []) {
   if (config?.StatusLine?.enabled) {
     settingsFlag.statusLine = {
       type: "command",
-      command: "ccr statusline",
+      command: "hccr statusline",
       padding: 0,
     }
   }

@@ -39,7 +39,7 @@ npm install -g @anthropic-ai/claude-code
 然后，安装 Claude Code Router：
 
 ```shell
-npm install -g @musistudio/claude-code-router
+npm install -g @haier/claude-code-router
 ```
 
 ### 2. 配置
@@ -51,7 +51,7 @@ npm install -g @musistudio/claude-code-router
 - **`LOG`** (可选): 您可以通过将其设置为 `true` 来启用日志记录。当设置为 `false` 时，将不会创建日志文件。默认值为 `true`。
 - **`LOG_LEVEL`** (可选): 设置日志级别。可用选项包括：`"fatal"`、`"error"`、`"warn"`、`"info"`、`"debug"`、`"trace"`。默认值为 `"debug"`。
 - **日志系统**: Claude Code Router 使用两个独立的日志系统：
-  - **服务器级别日志**: HTTP 请求、API 调用和服务器事件使用 pino 记录在 `~/.claude-code-router/logs/` 目录中，文件名类似于 `ccr-*.log`
+  - **服务器级别日志**: HTTP 请求、API 调用和服务器事件使用 pino 记录在 `~/.claude-code-router/logs/` 目录中，文件名类似于 `hccr-*.log`
   - **应用程序级别日志**: 路由决策和业务逻辑事件记录在 `~/.claude-code-router/claude-code-router.log` 文件中
 - **`APIKEY`** (可选): 您可以设置一个密钥来进行身份验证。设置后，客户端请求必须在 `Authorization` 请求头 (例如, `Bearer your-secret-key`) 或 `x-api-key` 请求头中提供此密钥。例如：`"APIKEY": "your-secret-key"`。
 - **`HOST`** (可选): 您可以设置服务的主机地址。如果未设置 `APIKEY`，出于安全考虑，主机地址将强制设置为 `127.0.0.1`，以防止未经授权的访问。例如：`"HOST": "0.0.0.0"`。
@@ -185,12 +185,12 @@ npm install -g @musistudio/claude-code-router
 使用 router 启动 Claude Code：
 
 ```shell
-ccr code
+hccr code
 ```
 
 > **注意**: 修改配置文件后，需要重启服务使配置生效：
 > ```shell
-> ccr restart
+> hccr restart
 > ```
 
 ### 4. UI 模式
@@ -198,7 +198,7 @@ ccr code
 为了获得更直观的体验，您可以使用 UI 模式来管理您的配置：
 
 ```shell
-ccr ui
+hccr ui
 ```
 
 这将打开一个基于 Web 的界面，您可以在其中轻松查看和编辑您的 `config.json` 文件。
@@ -212,12 +212,12 @@ ccr ui
 要激活环境变量，请运行：
 
 ```shell
-eval "$(ccr activate)"
+eval "$(hccr activate)"
 ```
 
 此命令会以 shell 友好的格式输出必要的环境变量，这些变量将在当前的 shell 会话中设置。激活后，您可以：
 
-- **直接使用 `claude` 命令**：无需使用 `ccr code` 即可运行 `claude` 命令。`claude` 命令将自动通过 Claude Code Router 路由请求。
+- **直接使用 `claude` 命令**：无需使用 `hhccr code` 即可运行 `claude` 命令。`claude` 命令将自动通过 Claude Code Router 路由请求。
 - **与 Agent SDK 应用程序集成**：使用 Anthropic Agent SDK 构建的应用程序将自动使用配置的路由器和模型。
 
 `activate` 命令设置以下环境变量：
@@ -229,7 +229,7 @@ eval "$(ccr activate)"
 - `DISABLE_COST_WARNINGS`: 禁用成本警告
 - `API_TIMEOUT_MS`: 来自配置的 API 超时时间
 
-> **注意**：在使用激活的环境变量之前，请确保 Claude Code Router 服务正在运行（`ccr start`）。环境变量仅在当前 shell 会话中有效。要使其持久化，您可以将 `eval "$(ccr activate)"` 添加到您的 shell 配置文件（例如 `~/.zshrc` 或 `~/.bashrc`）中。
+> **注意**：在使用激活的环境变量之前，请确保 Claude Code Router 服务正在运行（`hhccr start`）。环境变量仅在当前 shell 会话中有效。要使其持久化，您可以将 `eval "$(hccr activate)"` 添加到您的 shell 配置文件（例如 `~/.zshrc` 或 `~/.bashrc`）中。
 
 #### Providers
 
@@ -464,7 +464,7 @@ jobs:
 
       - name: Start Claude Code Router
         run: |
-          nohup ~/.bun/bin/bunx @musistudio/claude-code-router@1.0.8 start &
+          nohup ~/.bun/bin/bunx @haier/claude-code-router@1.0.8 start &
         shell: bash
 
       - name: Run Claude Code

@@ -13,7 +13,7 @@ const execPromise = promisify(exec);
 export async function checkForUpdates(currentVersion: string) {
   try {
     // 从npm registry获取最新版本信息
-    const { stdout } = await execPromise("npm view @musistudio/claude-code-router version");
+    const { stdout } = await execPromise("npm view @haier/claude-code-router version");
     const latestVersion = stdout.trim();
     
     // 比较版本
@@ -37,7 +37,7 @@ export async function checkForUpdates(currentVersion: string) {
 export async function performUpdate() {
   try {
     // 执行npm update命令
-    const { stdout, stderr } = await execPromise("npm update -g @musistudio/claude-code-router");
+    const { stdout, stderr } = await execPromise("npm update -g @haier/claude-code-router");
     
     if (stderr) {
       console.error("Update stderr:", stderr);

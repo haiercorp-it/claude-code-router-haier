@@ -62,9 +62,9 @@ Claude Code Router 是一个开源项目,允许用户将 Claude Code 的请求�
 
 **CLI 命令:**
 ```bash
-ccr login    # 打开浏览器登录
-ccr logout   # 登出
-ccr whoami   # 查看当前用户
+hccr login    # 打开浏览器登录
+hccr logout   # 登出
+hccr whoami   # 查看当前用户
 ```
 
 **UI 展示:**
@@ -76,21 +76,21 @@ ccr whoami   # 查看当前用户
 
 **首次使用流程:**
 ```
-1. 用户执行 ccr start 或 ccr code
-2. 检测到未登录,提示: "Please login first: ccr login"
-3. 用户执行 ccr login
+1. 用户执行 hccr start 或 hccr code
+2. 检测到未登录,提示: "Please login first: hccr login"
+3. 用户执行 hccr login
 4. 自动打开浏览器,跳转到海尔登录页
 5. 用户输入账号密码,授权
 6. 浏览器显示 "Login Successful",3 秒后自动关闭
 7. 终端显示: "✓ Login successful! Welcome, 张三!"
-8. 用户可以正常使用: ccr code
+8. 用户可以正常使用: hccr code
 ```
 
 **Token 过期处理:**
 ```
 1. 检测到 Token 即将过期(提前 5 分钟)
 2. 自动使用 refresh_token 刷新
-3. 刷新失败时提示: "Session expired. Please login again: ccr login"
+3. 刷新失败时提示: "Session expired. Please login again: hccr login"
 ```
 
 ---
@@ -223,7 +223,7 @@ ccr whoami   # 查看当前用户
 
 **CLI 命令:**
 ```bash
-ccr quota  # 查看配额状态
+hccr quota  # 查看配额状态
 
 输出:
 Quota Status:
@@ -447,22 +447,22 @@ Claude Code 会在上下文接近 token 限制时,自动压缩历史消息:
    npm install -g @haier/claude-code-router
 
 2. 首次启动
-   ccr start
-   → 提示: "Please login first: ccr login"
+   hccr start
+   → 提示: "Please login first: hccr login"
 
 3. 登录
-   ccr login
+   hccr login
    → 打开浏览器
    → 输入海尔账号密码
    → 授权成功
    → 终端显示: "✓ Login successful! Welcome, 张三!"
 
 4. 查看可用模型
-   ccr models
+   hccr models
    → 显示企业模型清单
 
 5. 开始使用
-   ccr code
+   hccr code
    → 正常使用 Claude Code,请求自动路由到企业模型
 ```
 
@@ -470,23 +470,23 @@ Claude Code 会在上下文接近 token 限制时,自动压缩历史消息:
 
 ```
 # 启动服务
-ccr start
+hccr start
 
 # 使用 Claude Code
-ccr code "帮我优化这段代码"
+hccr code "帮我优化这段代码"
 
 # 查看配额
-ccr quota
+hccr quota
   Total:     50,000 credits
   Used:      12,500 credits
   Remaining: 37,500 credits
 
 # 切换模型
-ccr model
+hccr model
   → 交互式选择器
 
 # 查看状态
-ccr status
+hccr status
   Service: Running
   User: 张三 (zhangsan@haier.com)
   Quota: 75% remaining
@@ -564,133 +564,3 @@ ccr status
 - 系统自动分配
 
 ---
-
-## 6. 实施计划
-
-### 6.1 开发阶段
-
-| 阶段 | 时间 | 内容 | 交付物 |
-|------|------|------|--------|
-| Phase 1 | Week 1 | 适配器框架搭建 | 基础架构,可插拔验证 |
-| Phase 2 | Week 2 | OAuth 认证 | 登录功能,CLI 命令 |
-| Phase 3 | Week 3 | 混合模型管理 | 模型同步,配置合并 |
-| Phase 4 | Week 4 | 配额管理 | 配额检查,扣除,查询 |
-| Phase 5 | Week 5 | 行为上报 | 事件采集,批量上报 |
-| Phase 6 | Week 6 | UI 改造 | 企业功能界面 |
-| Phase 7 | Week 7 | 测试与优化 | 全面测试,性能优化 |
-
-### 6.2 验收标准
-
-**功能完整性:**
-- ✅ 开源模式: 100% 功能正常
-- ✅ 企业模式: 新功能正常工作
-- ✅ 模式切换: 平滑无损
-
-**性能指标:**
-- ✅ 配额检查延迟 < 50ms
-- ✅ 行为上报不阻塞请求
-- ✅ 模型同步不影响使用
-
-**兼容性:**
-- ✅ 原有配置文件无需修改
-- ✅ 支持企业/开源模式切换
-- ✅ 向下兼容
-
----
-
-## 7. 附录
-
-### 7.1 配置示例
-
-**开源模式 (完全兼容):**
-```json
-{
-  "PORT": 3456,
-  "APIKEY": "test-key",
-  "Providers": [
-    {
-      "name": "deepseek",
-      "api_base_url": "https://api.deepseek.com",
-      "api_key": "sk-xxx",
-      "models": ["deepseek-chat"]
-    }
-  ],
-  "Router": {
-    "default": "deepseek,deepseek-chat"
-  }
-}
-```
-
-**企业模式:**
-```json
-{
-  "PORT": 3456,
-  "HAIER_ENTERPRISE_MODE": true,
-
-  "HAIER_OAUTH": {
-    "enabled": true,
-    "client_id": "ccr_client_id",
-    "client_secret": "ccr_secret",
-    "auth_url": "https://auth.haier.com",
-    "token_url": "https://auth.haier.com/token",
-    "user_info_url": "https://auth.haier.com/userinfo",
-    "callback_url": "http://127.0.0.1:3456/oauth/callback"
-  },
-
-  "HAIER_MODEL_SYNC": {
-    "enabled": true,
-    "backend_url": "https://ccr-api.haier.net/models",
-    "merge_strategy": "auto"
-  },
-
-  "HAIER_QUOTA": {
-    "enabled": true,
-    "backend_url": "https://ccr-api.haier.net/quota"
-  },
-
-  "HAIER_ANALYTICS": {
-    "enabled": true,
-    "backend_url": "https://ccr-api.haier.net/events"
-  },
-
-  "Providers": [
-    {
-      "name": "my-ollama",
-      "source": "user",
-      "api_base_url": "http://localhost:11434/v1/chat/completions",
-      "models": ["qwen2.5-coder:14b"]
-    }
-  ],
-
-  "Router": {
-    "default": "haier-deepseek,deepseek-chat",
-    "background": "my-ollama,qwen2.5-coder:14b"
-  }
-}
-```
-
-### 7.2 常见问题
-
-**Q: 企业模式和开源模式有什么区别?**
-- 开源模式: 完全本地配置,无认证,无配额限制
-- 企业模式: 海尔账号登录,企业模型 + 用户模型,配额管理
-
-**Q: 我可以只启用部分企业功能吗?**
-- 可以,每个功能都有独立的 `enabled` 开关
-
-**Q: 用户自定义模型会消耗企业配额吗?**
-- 不会,用户模型 (`source: "user"`) 不检查配额
-
-**Q: 如何回退到开源版本?**
-- 将 `HAIER_ENTERPRISE_MODE` 设为 `false` 即可
-
----
-
-## 结语
-
-通过产品化改造,我们将打造一款:
-- ✅ **企业可控**: 统一认证、配额管理、使用分析
-- ✅ **用户友好**: 灵活扩展、平滑切换、开箱即用
-- ✅ **技术先进**: 非侵入式、适配器模式、向下兼容
-
-的企业级 AI 编程助手工具。
