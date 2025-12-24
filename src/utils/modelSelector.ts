@@ -23,6 +23,7 @@ interface Provider {
   api_key: string;
   models: string[];
   transformer?: TransformerConfig;
+  contextSize?: Record<string, number>; // Model context size in K (e.g., { "model-name": 120 })
 }
 
 interface RouterConfig {
@@ -281,7 +282,29 @@ async function addModelToExistingProvider(config: Config, providerName: string):
     return null;
   }
   
+  // Ask for context size
+  const contextSizeInput = await input({
+    message: `\n${BOLDYELLOW}Enter the model context size in K (e.g., 120 for 120K, leave empty to skip):${RESET}`,
+    default: '',
+    validate: (value: string) => {
+      if (value.trim() === '') return true;
+      const num = parseInt(value);
+      if (isNaN(num) || num <= 0) {
+        return 'Please enter a valid positive number or leave empty';
+      }
+      return true;
+    }
+  });
+  
   provider.models.push(modelName);
+  
+  // Save context size if provided
+  if (contextSizeInput.trim() !== '') {
+    if (!provider.contextSize) {
+      provider.contextSize = {};
+    }
+    provider.contextSize[modelName] = parseInt(contextSizeInput);
+  }
   
   // Ask about model-specific transformers
   const addModelTransformer = await confirm({
@@ -377,11 +400,40 @@ async function addNewProvider(config: Config): Promise<ModelResult | null> {
   
   const models = modelsInput.split(',').map(m => m.trim()).filter(m => m);
   
+  // Ask for context sizes for each model
+  const contextSize: Record<string, number> = {};
+  const addContextSizes = await confirm({
+    message: `\n${BOLDYELLOW}Do you want to specify context sizes for these models?${RESET}`,
+    default: false
+  });
+  
+  if (addContextSizes) {
+    for (const model of models) {
+      const contextSizeInput = await input({
+        message: `\n${BOLDYELLOW}Context size for "${model}" in K (e.g., 120 for 120K, leave empty to skip):${RESET}`,
+        default: '',
+        validate: (value: string) => {
+          if (value.trim() === '') return true;
+          const num = parseInt(value);
+          if (isNaN(num) || num <= 0) {
+            return 'Please enter a valid positive number or leave empty';
+          }
+          return true;
+        }
+      });
+      
+      if (contextSizeInput.trim() !== '') {
+        contextSize[model] = parseInt(contextSizeInput);
+      }
+    }
+  }
+  
   const newProvider: Provider = {
     name: providerName,
     api_base_url: apiBaseUrl,
     api_key: apiKey,
-    models: models
+    models: models,
+    ...(Object.keys(contextSize).length > 0 && { contextSize })
   };
   
   // Global transformer configuration

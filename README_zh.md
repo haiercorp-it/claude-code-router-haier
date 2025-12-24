@@ -240,6 +240,30 @@ eval "$(hccr activate)"
 -   `api_key`: 您提供商的 API 密钥。
 -   `models`: 此提供商可用的模型名称列表。
 -   `transformer` (可选): 指定用于处理请求和响应的转换器。
+-   `contextSize` (可选): 为每个模型指定上下文大小（单位：K）。这用于自动计算 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 环境变量，以优化不同上下文大小模型的自动压缩行为。格式为对象，键为模型名称，值为上下文大小数字。例如：`{ "minimax-m2": 120 }` 表示该模型有 120K 上下文。
+
+**上下文大小自动压缩：**
+
+当您为模型配置了 `contextSize` 后，使用 `hccr activate` 或 `hccr code` 启动时，系统会自动计算并设置 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 环境变量。计算公式为：
+
+```
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (当前模型上下文大小 / 200) * 0.8
+```
+
+例如，如果您的 minimax-m2 模型上下文为 120K，则自动压缩阈值为：`(120 / 200) * 0.8 = 0.48`，即当上下文使用达到 48% 时触发自动压缩。这确保了不同上下文大小的模型都能获得与 Claude 官方 200K 模型相同比例的自动压缩体验。
+
+示例配置：
+```json
+{
+  "name": "minimax",
+  "api_base_url": "https://api.minimax.chat/v1/chat/completions",
+  "api_key": "sk-xxx",
+  "models": ["minimax-m2"],
+  "contextSize": {
+    "minimax-m2": 120
+  }
+}
+```
 
 #### Transformers
 

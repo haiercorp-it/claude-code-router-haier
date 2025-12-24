@@ -1218,9 +1218,183 @@ haier-ccr-admin      → 管理后台
 
 ---
 
-## 7. 关键技术点
+## 7. 模型上下文大小自动压缩
 
-### 7.1 非侵入式实现
+### 7.1 功能概述
+
+为了优化不同上下文大小模型的自动压缩行为，系统支持为每个模型配置上下文大小（单位：K），并自动计算 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 环境变量。
+
+### 7.2 配置结构
+
+**Provider 配置扩展:**
+
+```typescript
+interface Provider {
+  name: string;
+  api_base_url: string;
+  api_key: string;
+  models: string[];
+  transformer?: TransformerConfig;
+  contextSize?: Record<string, number>; // 新增：模型上下文大小配置
+}
+```
+
+**配置示例:**
+
+```json
+{
+  "Providers": [
+    {
+      "name": "minimax",
+      "api_base_url": "https://api.minimax.chat/v1/chat/completions",
+      "api_key": "sk-xxx",
+      "models": ["minimax-m2"],
+      "contextSize": {
+        "minimax-m2": 120
+      }
+    },
+    {
+      "name": "deepseek",
+      "api_base_url": "https://api.deepseek.com/chat/completions",
+      "api_key": "sk-xxx",
+      "models": ["deepseek-chat"],
+      "contextSize": {
+        "deepseek-chat": 64
+      }
+    }
+  ],
+  "Router": {
+    "default": "minimax,minimax-m2"
+  }
+}
+```
+
+### 7.3 计算逻辑
+
+**公式:**
+
+```
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (当前模型上下文大小 / 200) * 0.8
+```
+
+- **200K**: Claude 官方模型的上下文大小基准
+- **0.8**: 80% 的压缩阈值（与 Claude 官方相同）
+
+**实现代码 (src/utils/createEnvVariables.ts):**
+
+```typescript
+const calculateAutoCompactPct = (modelContextSize: number): number => {
+  const claudeContextSize = 200; // Claude 官方上下文大小
+  return (modelContextSize / claudeContextSize) * 0.8;
+};
+
+const getModelContextSize = (config: any, modelKey: string): number | undefined => {
+  if (!modelKey) return undefined;
+  
+  const [providerName, modelName] = modelKey.split(',');
+  if (!providerName || !modelName) return undefined;
+  
+  const provider = config.Providers?.find((p: any) => p.name === providerName);
+  if (!provider || !provider.contextSize) return undefined;
+  
+  return provider.contextSize[modelName];
+};
+
+export const createEnvVariables = async () => {
+  const config = await readConfigFile();
+  const envVars: Record<string, string | undefined> = {
+    // ... 其他环境变量
+  };
+
+  // 计算并设置 CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
+  const defaultModel = config.Router?.default;
+  if (defaultModel) {
+    const contextSize = getModelContextSize(config, defaultModel);
+    if (contextSize) {
+      const autoCompactPct = calculateAutoCompactPct(contextSize);
+      envVars.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = autoCompactPct.toFixed(2);
+      console.log(`Setting CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to ${autoCompactPct.toFixed(2)} (based on ${contextSize}K context)`);
+    }
+  }
+
+  return envVars;
+};
+```
+
+### 7.4 计算示例
+
+| 模型 | 上下文大小 | 计算过程 | 压缩阈值 | 说明 |
+|------|-----------|---------|---------|------|
+| minimax-m2 | 120K | (120/200) * 0.8 | 0.48 (48%) | 小上下文模型，提前压缩 |
+| deepseek-chat | 64K | (64/200) * 0.8 | 0.256 (25.6%) | 更小上下文，更早压缩 |
+| gemini-2.5-pro | 1000K | (1000/200) * 0.8 | 4.0 (400%) | 大上下文模型，延迟压缩 |
+| claude-sonnet-4 | 200K | (200/200) * 0.8 | 0.8 (80%) | 标准 Claude 模型 |
+
+### 7.5 交互式配置
+
+**模型选择器集成 (src/utils/modelSelector.ts):**
+
+在 `hccr model` 命令中添加上下文大小配置：
+
+```typescript
+// 添加新模型时
+const contextSizeInput = await input({
+  message: `\n${BOLDYELLOW}Enter the model context size in K (e.g., 120 for 120K, leave empty to skip):${RESET}`,
+  default: '',
+  validate: (value: string) => {
+    if (value.trim() === '') return true;
+    const num = parseInt(value);
+    if (isNaN(num) || num <= 0) {
+      return 'Please enter a valid positive number or leave empty';
+    }
+    return true;
+  }
+});
+
+if (contextSizeInput.trim() !== '') {
+  if (!provider.contextSize) {
+    provider.contextSize = {};
+  }
+  provider.contextSize[modelName] = parseInt(contextSizeInput);
+}
+```
+
+### 7.6 使用场景
+
+**场景1: 小上下文模型节省成本**
+
+使用 64K 上下文的模型时，系统自动设置压缩阈值为 25.6%，确保不会过早触发压缩，避免频繁的上下文重建。
+
+**场景2: 大上下文模型处理长文本**
+
+使用 1000K 上下文的模型时，系统设置压缩阈值为 400%，充分利用模型的长上下文能力，减少压缩次数。
+
+**场景3: 多模型动态切换**
+
+当使用 `/model` 命令切换模型时，系统根据当前 default 模型的配置自动调整压缩行为，无需手动干预。
+
+### 7.7 技术特性
+
+**向后兼容:**
+- `contextSize` 为可选字段
+- 不配置时使用默认行为
+- 不影响现有配置
+
+**性能优化:**
+- 配置读取时一次性计算
+- 结果缓存在环境变量中
+- 无运行时性能开销
+
+**错误处理:**
+- 配置格式错误时静默跳过
+- 模型未找到时使用默认值
+- 保证服务正常启动
+
+---
+
+## 8. 关键技术点
+
+### 8.1 非侵入式实现
 
 **通过 Fastify Hooks 插入:**
 ```typescript
@@ -1234,7 +1408,7 @@ server.addHook('onSend', quotaDeductHook);
 server.addHook('onSend', analyticsReportHook);
 ```
 
-### 7.2 异步非阻塞
+### 8.2 异步非阻塞
 
 **关键操作异步化:**
 ```typescript
@@ -1249,7 +1423,7 @@ setImmediate(async () => {
 });
 ```
 
-### 7.3 配置驱动
+### 8.3 配置驱动
 
 **一键切换模式:**
 ```json
@@ -1264,7 +1438,7 @@ setImmediate(async () => {
 }
 ```
 
-### 7.4 向下兼容
+### 8.4 向下兼容
 
 **原有配置完全兼容:**
 ```json
@@ -1279,20 +1453,20 @@ setImmediate(async () => {
 
 ---
 
-## 8. 性能优化
+## 9. 性能优化
 
-### 8.1 缓存策略
+### 9.1 缓存策略
 
 - **配额缓存**: LRU, TTL 5 分钟
 - **模型缓存**: 本地文件, TTL 1 小时
 - **Token 缓存**: 加密本地文件
 
-### 8.2 批量操作
+### 9.2 批量操作
 
 - **事件上报**: 批量 10 条或 30 秒
 - **配额查询**: 批量查询,减少请求
 
-### 8.3 异步处理
+### 9.3 异步处理
 
 - **配额扣除**: 异步,不阻塞响应
 - **数据上报**: 异步,本地队列
@@ -1300,21 +1474,21 @@ setImmediate(async () => {
 
 ---
 
-## 9. 安全设计
+## 10. 安全设计
 
-### 9.1 Token 安全
+### 10.1 Token 安全
 
 - 加密存储 (AES-256-CBC)
 - 自动刷新机制
 - 过期重新登录
 
-### 9.2 API Key 保护
+### 10.2 API Key 保护
 
 - 企业模型 Key 不暴露给用户
 - 用户模型 Key 本地加密
 - 支持环境变量引用
 
-### 9.3 配额防绕过
+### 10.3 配额防绕过
 
 - 来源标记 (`source: 'haier' | 'user'`)
 - 企业模型强制配额检查
@@ -1322,9 +1496,9 @@ setImmediate(async () => {
 
 ---
 
-## 10. 监控与告警
+## 11. 监控与告警
 
-### 10.1 监控指标
+### 11.1 监控指标
 
 - 服务健康状态
 - 请求成功率
@@ -1332,13 +1506,13 @@ setImmediate(async () => {
 - 配额使用率
 - 错误率
 
-### 10.2 日志收集
+### 11.2 日志收集
 
 - 本地日志: `~/.claude-code-router/logs/`
 - 日志轮转: 3 文件, 50MB 上限
 - 级别: debug, info, warn, error
 
-### 10.3 告警策略
+### 11.3 告警策略
 
 - 服务宕机告警
 - 配额超限告警

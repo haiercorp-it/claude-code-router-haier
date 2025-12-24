@@ -290,6 +290,30 @@ The `Providers` array is where you define the different model providers you want
 - `api_key`: Your API key for the provider.
 - `models`: A list of model names available from this provider.
 - `transformer` (optional): Specifies transformers to process requests and responses.
+- `contextSize` (optional): Specifies the context size for each model (in K). This is used to automatically calculate the `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` environment variable to optimize auto-compaction behavior for models with different context sizes. Format is an object with model names as keys and context size numbers as values. For example: `{ "minimax-m2": 120 }` indicates the model has 120K context.
+
+**Context Size Auto-Compaction:**
+
+When you configure `contextSize` for a model, the system automatically calculates and sets the `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` environment variable when starting with `hccr activate` or `hccr code`. The calculation formula is:
+
+```
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (current model context size / 200) * 0.8
+```
+
+For example, if your minimax-m2 model has 120K context, the auto-compaction threshold will be: `(120 / 200) * 0.8 = 0.48`, meaning auto-compaction triggers when context usage reaches 48%. This ensures models with different context sizes get the same proportional auto-compaction experience as Claude's official 200K model.
+
+Example configuration:
+```json
+{
+  "name": "minimax",
+  "api_base_url": "https://api.minimax.chat/v1/chat/completions",
+  "api_key": "sk-xxx",
+  "models": ["minimax-m2"],
+  "contextSize": {
+    "minimax-m2": 120
+  }
+}
+```
 
 #### Transformers
 

@@ -100,8 +100,10 @@
     "api_key_required": "API 密钥为必填项",
     "name_required": "名称为必填项",
     "name_duplicate": "已存在同名供应商",
-    "search": "搜索供应商..."
-
+    "search": "搜索供应商...",
+    "context_size": "模型上下文大小",
+    "context_size_description": "为每个模型配置上下文大小（单位：K），用于自动计算压缩阈值。例如：120 表示 120K 上下文",
+    "add_models_first": "请先添加模型，然后配置上下文大小"
   },
   "router": {
     "title": "路由",

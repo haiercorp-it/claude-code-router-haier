@@ -715,6 +715,51 @@ export function Providers() {
                 </div>
               </div>
               
+              {/* Context Size Configuration */}
+              <div className="space-y-2">
+                <Label>{t("providers.context_size")}</Label>
+                <div className="text-sm text-gray-500 mb-2">{t("providers.context_size_description")}</div>
+                {editingProvider.models && editingProvider.models.length > 0 ? (
+                  <div className="space-y-2">
+                    {(editingProvider.models || []).map((model: string, modelIndex: number) => (
+                      <div key={modelIndex} className="flex items-center gap-2">
+                        <div className="flex-1 text-sm font-medium">{model}</div>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            placeholder="120"
+                            className="w-24"
+                            value={editingProvider.contextSize?.[model] || ''}
+                            onChange={(e) => {
+                              if (!editingProviderData) return;
+                              const updatedProvider = { ...editingProviderData };
+                              if (!updatedProvider.contextSize) {
+                                updatedProvider.contextSize = {};
+                              }
+                              const value = e.target.value;
+                              if (value === '') {
+                                delete updatedProvider.contextSize[model];
+                                if (Object.keys(updatedProvider.contextSize).length === 0) {
+                                  delete updatedProvider.contextSize;
+                                }
+                              } else {
+                                updatedProvider.contextSize[model] = parseInt(value);
+                              }
+                              setEditingProviderData(updatedProvider);
+                            }}
+                          />
+                          <span className="text-sm text-gray-500">K</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-400 italic p-4 border border-dashed rounded-md text-center">
+                    {t("providers.add_models_first")}
+                  </div>
+                )}
+              </div>
+              
               {/* Provider Transformer Selection */}
               <div className="space-y-2">
                 <Label>{t("providers.provider_transformer")}</Label>

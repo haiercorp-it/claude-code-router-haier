@@ -100,8 +100,10 @@
     "api_key_required": "API Key is required",
     "name_required": "Name is required",
     "name_duplicate": "A provider with this name already exists",
-    "search": "Search providers..."
-
+    "search": "Search providers...",
+    "context_size": "Model Context Size",
+    "context_size_description": "Configure context size for each model (in K) to automatically calculate compression threshold. e.g., 120 means 120K context",
+    "add_models_first": "Please add models first, then configure context size"
   },
   "router": {
     "title": "Router",
