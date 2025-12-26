@@ -2,13 +2,13 @@ import { readConfigFile } from ".";
 
 /**
  * Calculate CLAUDE_AUTOCOMPACT_PCT_OVERRIDE based on model context size
- * Formula: (modelContextSize / 200) * 0.8
+ * Formula: (modelContextSize / 200) * 80
  * @param modelContextSize - Model context size in K
  * @returns Calculated percentage value
  */
 const calculateAutoCompactPct = (modelContextSize: number): number => {
   const claudeContextSize = 200; // Claude official context size in K
-  return (modelContextSize / claudeContextSize) * 0.8;
+  return (modelContextSize / claudeContextSize) * 80;
 };
 
 /**

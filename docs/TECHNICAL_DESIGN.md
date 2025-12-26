@@ -1274,18 +1274,18 @@ interface Provider {
 **公式:**
 
 ```
-CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (当前模型上下文大小 / 200) * 0.8
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (当前模型上下文大小 / 200) * 80
 ```
 
 - **200K**: Claude 官方模型的上下文大小基准
-- **0.8**: 80% 的压缩阈值（与 Claude 官方相同）
+- **80**: 80% 的压缩阈值（与 Claude 官方相同）
 
 **实现代码 (src/utils/createEnvVariables.ts):**
 
 ```typescript
 const calculateAutoCompactPct = (modelContextSize: number): number => {
   const claudeContextSize = 200; // Claude 官方上下文大小
-  return (modelContextSize / claudeContextSize) * 0.8;
+  return (modelContextSize / claudeContextSize) * 80;
 };
 
 const getModelContextSize = (config: any, modelKey: string): number | undefined => {
@@ -1325,10 +1325,10 @@ export const createEnvVariables = async () => {
 
 | 模型 | 上下文大小 | 计算过程 | 压缩阈值 | 说明 |
 |------|-----------|---------|---------|------|
-| minimax-m2 | 120K | (120/200) * 0.8 | 0.48 (48%) | 小上下文模型，提前压缩 |
-| deepseek-chat | 64K | (64/200) * 0.8 | 0.256 (25.6%) | 更小上下文，更早压缩 |
-| gemini-2.5-pro | 1000K | (1000/200) * 0.8 | 4.0 (400%) | 大上下文模型，延迟压缩 |
-| claude-sonnet-4 | 200K | (200/200) * 0.8 | 0.8 (80%) | 标准 Claude 模型 |
+| minimax-m2 | 120K | (120/200) * 80 | 48 (48%) | 小上下文模型，提前压缩 |
+| deepseek-chat | 64K | (64/200) * 80 | 25.6 (25.6%) | 更小上下文，更早压缩 |
+| gemini-2.5-pro | 1000K | (1000/200) * 80 | 400 (400%) | 大上下文模型，延迟压缩 |
+| claude-sonnet-4 | 200K | (200/200) * 80 | 80 (80%) | 标准 Claude 模型 |
 
 ### 7.5 交互式配置
 

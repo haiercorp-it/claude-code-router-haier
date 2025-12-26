@@ -297,10 +297,10 @@ The `Providers` array is where you define the different model providers you want
 When you configure `contextSize` for a model, the system automatically calculates and sets the `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` environment variable when starting with `hccr activate` or `hccr code`. The calculation formula is:
 
 ```
-CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (current model context size / 200) * 0.8
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (current model context size / 200) * 80
 ```
 
-For example, if your minimax-m2 model has 120K context, the auto-compaction threshold will be: `(120 / 200) * 0.8 = 0.48`, meaning auto-compaction triggers when context usage reaches 48%. This ensures models with different context sizes get the same proportional auto-compaction experience as Claude's official 200K model.
+For example, if your minimax-m2 model has 120K context, the auto-compaction threshold will be: `(120 / 200) * 80 = 48`, meaning auto-compaction triggers when context usage reaches 48%. This ensures models with different context sizes get the same proportional auto-compaction experience as Claude's official 200K model.
 
 **Note:** The system calculates the compression threshold based on the model configured in `Router.longContext`, as long context scenarios benefit most from optimized compression behavior.
 
