@@ -10,8 +10,7 @@
     "release": "npm run build",
     "release:patch": "npm run build && standard-version --release-as patch && git push --follow-tags origin main && pnpm publish",
     "release:minor": "npm run build && standard-version --release-as minor && git push --follow-tags origin main && pnpm publish",
-    "release:major": "npm run build && standard-version --release-as major && git push --follow-tags origin main && pnpm publish",
-    "publish": "pnpm publish"
+    "release:major": "npm run build && standard-version --release-as major && git push --follow-tags origin main && pnpm publish"
   },
   "keywords": [
     "claude",
@@ -50,6 +49,7 @@
       "!build/",
       "src/",
       "screenshots/"
-    ]
+    ],
+    "registry": "https://nexus.haier.net/repository/dts-npm/"
   }
 }
