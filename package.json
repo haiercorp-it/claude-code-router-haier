@@ -1,13 +1,17 @@
 {
   "name": "@haier/claude-code-router",
-  "version": "1.0.71",
+  "version": "1.0.73",
   "description": "Use Claude Code without an Anthropics account and route it to another LLM provider",
   "bin": {
     "hccr": "dist/cli.js"
   },
   "scripts": {
     "build": "node scripts/build.js",
-    "release": "npm run build && npm publish"
+    "release": "npm run build",
+    "release:patch": "npm run build && standard-version --release-as patch && git push --follow-tags origin main && pnpm publish",
+    "release:minor": "npm run build && standard-version --release-as minor && git push --follow-tags origin main && pnpm publish",
+    "release:major": "npm run build && standard-version --release-as major && git push --follow-tags origin main && pnpm publish",
+    "publish": "pnpm publish"
   },
   "keywords": [
     "claude",
@@ -21,9 +25,9 @@
   "dependencies": {
     "@fastify/static": "^8.2.0",
     "@inquirer/prompts": "^5.0.0",
-    "haier-hccr-llms": "^1.0.50",
     "dotenv": "^16.4.7",
     "find-process": "^2.0.0",
+    "haier-hccr-llms": "^1.0.50",
     "json5": "^2.2.3",
     "lru-cache": "^11.2.2",
     "minimist": "^1.2.8",
@@ -38,6 +42,7 @@
     "esbuild": "^0.25.1",
     "fastify": "^5.4.0",
     "shx": "^0.4.0",
+    "standard-version": "^9.5.0",
     "typescript": "^5.8.2"
   },
   "publishConfig": {
