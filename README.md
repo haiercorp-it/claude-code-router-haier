@@ -297,20 +297,20 @@ The `Providers` array is where you define the different model providers you want
 When you configure `contextSize` for a model, the system automatically calculates and sets the `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` environment variable when starting with `hccr activate` or `hccr code`. The calculation formula is:
 
 ```
-CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (current model context size / 200) * 0.8
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (long context model size / 200) * 0.8
 ```
 
-For example, if your minimax-m2 model has 120K context, the auto-compaction threshold will be: `(120 / 200) * 0.8 = 0.48`, meaning auto-compaction triggers when context usage reaches 48%. This ensures models with different context sizes get the same proportional auto-compaction experience as Claude's official 200K model.
+The system uses the context size of the `Router.longContext` model as the calculation baseline, because it automatically switches to that model when approaching the long context threshold. For example, if your long context model has 1000K context, the auto-compaction threshold will be: `(1000 / 200) * 0.8 = 4.0`, meaning auto-compaction triggers when context usage reaches 400%.
 
 Example configuration:
 ```json
 {
-  "name": "minimax",
-  "api_base_url": "https://api.minimax.chat/v1/chat/completions",
+  "name": "openrouter",
+  "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
   "api_key": "sk-xxx",
-  "models": ["minimax-m2"],
+  "models": ["google/gemini-2.5-pro-preview"],
   "contextSize": {
-    "minimax-m2": 120
+    "google/gemini-2.5-pro-preview": 1000
   }
 }
 ```

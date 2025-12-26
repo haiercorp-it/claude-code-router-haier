@@ -247,20 +247,20 @@ eval "$(hccr activate)"
 当您为模型配置了 `contextSize` 后，使用 `hccr activate` 或 `hccr code` 启动时，系统会自动计算并设置 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 环境变量。计算公式为：
 
 ```
-CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (当前模型上下文大小 / 200) * 0.8
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (长上下文模型大小 / 200) * 0.8
 ```
 
-例如，如果您的 minimax-m2 模型上下文为 120K，则自动压缩阈值为：`(120 / 200) * 0.8 = 0.48`，即当上下文使用达到 48% 时触发自动压缩。这确保了不同上下文大小的模型都能获得与 Claude 官方 200K 模型相同比例的自动压缩体验。
+系统使用 `Router.longContext` 模型的上下文大小作为计算基准，因为在达到长上下文阈值前会自动切换到该模型。例如，如果您的长上下文模型为 1000K，则自动压缩阈值为：`(1000 / 200) * 0.8 = 4.0`，即当上下文使用达到 400% 时触发自动压缩。
 
 示例配置：
 ```json
 {
-  "name": "minimax",
-  "api_base_url": "https://api.minimax.chat/v1/chat/completions",
+  "name": "openrouter",
+  "api_base_url": "https://openrouter.ai/api/v1/chat/completions",
   "api_key": "sk-xxx",
-  "models": ["minimax-m2"],
+  "models": ["google/gemini-2.5-pro-preview"],
   "contextSize": {
-    "minimax-m2": 120
+    "google/gemini-2.5-pro-preview": 1000
   }
 }
 ```

@@ -50,14 +50,15 @@ export const createEnvVariables = async () => {
     CLAUDE_CODE_USE_BEDROCK: undefined,
   };
 
-  // Calculate and set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE based on default model's context size
-  const defaultModel = config.Router?.default;
-  if (defaultModel) {
-    const contextSize = getModelContextSize(config, defaultModel);
+  // Calculate and set CLAUDE_AUTOCOMPACT_PCT_OVERRIDE based on longContext model's context size
+  // Use longContext model because default model will switch to it when approaching threshold
+  const longContextModel = config.Router?.longContext;
+  if (longContextModel) {
+    const contextSize = getModelContextSize(config, longContextModel);
     if (contextSize) {
       const autoCompactPct = calculateAutoCompactPct(contextSize);
       envVars.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = autoCompactPct.toFixed(2);
-      console.log(`Setting CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to ${autoCompactPct.toFixed(2)} (based on ${contextSize}K context)`);
+      console.log(`Setting CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to ${autoCompactPct.toFixed(2)} (based on ${contextSize}K context from longContext model)`);
     }
   }
 

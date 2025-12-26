@@ -139,11 +139,21 @@ async function run(options: RunOptions = {}) {
   });
 
   // Add global error handlers to prevent the service from crashing
-  process.on("uncaughtException", (err) => {
+  process.on("uncaughtException", (err: any) => {
+    // Ignore EOPNOTSUPP errors from file watchers trying to watch socket files
+    if (err.code === "EOPNOTSUPP" && err.message?.includes("watch")) {
+      server.logger.warn("Ignoring file watcher error for socket file:", err.message);
+      return;
+    }
     server.logger.error("Uncaught exception:", err);
   });
 
-  process.on("unhandledRejection", (reason, promise) => {
+  process.on("unhandledRejection", (reason: any, promise) => {
+    // Ignore EOPNOTSUPP errors from file watchers trying to watch socket files
+    if (reason?.code === "EOPNOTSUPP" && reason?.message?.includes("watch")) {
+      server.logger.warn("Ignoring file watcher rejection for socket file:", reason.message);
+      return;
+    }
     server.logger.error("Unhandled rejection at:", promise, "reason:", reason);
   });
   // Add async preHandler hook for authentication

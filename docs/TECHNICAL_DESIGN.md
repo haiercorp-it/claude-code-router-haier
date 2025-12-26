@@ -1274,11 +1274,12 @@ interface Provider {
 **公式:**
 
 ```
-CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (当前模型上下文大小 / 200) * 0.8
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = (长上下文模型大小 / 200) * 0.8
 ```
 
 - **200K**: Claude 官方模型的上下文大小基准
 - **0.8**: 80% 的压缩阈值（与 Claude 官方相同）
+- **使用 longContext 模型**：因为在达到长上下文阈值前会自动切换到该模型
 
 **实现代码 (src/utils/createEnvVariables.ts):**
 
@@ -1306,14 +1307,14 @@ export const createEnvVariables = async () => {
     // ... 其他环境变量
   };
 
-  // 计算并设置 CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
-  const defaultModel = config.Router?.default;
-  if (defaultModel) {
-    const contextSize = getModelContextSize(config, defaultModel);
+  // 基于 longContext 模型计算压缩阈值
+  const longContextModel = config.Router?.longContext;
+  if (longContextModel) {
+    const contextSize = getModelContextSize(config, longContextModel);
     if (contextSize) {
       const autoCompactPct = calculateAutoCompactPct(contextSize);
       envVars.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = autoCompactPct.toFixed(2);
-      console.log(`Setting CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to ${autoCompactPct.toFixed(2)} (based on ${contextSize}K context)`);
+      console.log(`Setting CLAUDE_AUTOCOMPACT_PCT_OVERRIDE to ${autoCompactPct.toFixed(2)} (based on ${contextSize}K context from longContext model)`);
     }
   }
 
@@ -1361,17 +1362,17 @@ if (contextSizeInput.trim() !== '') {
 
 ### 7.6 使用场景
 
-**场景1: 小上下文模型节省成本**
+**场景1: 配置长上下文模型**
 
-使用 64K 上下文的模型时，系统自动设置压缩阈值为 25.6%，确保不会过早触发压缩，避免频繁的上下文重建。
+当配置了 `longContext` 模型并设置其上下文大小后，系统会自动计算压缩阈值。例如使用 1000K 上下文的 Gemini 模型时，压缩阈值为 400%，充分利用长上下文能力。
 
-**场景2: 大上下文模型处理长文本**
+**场景2: 自动模型切换**
 
-使用 1000K 上下文的模型时，系统设置压缩阈值为 400%，充分利用模型的长上下文能力，减少压缩次数。
+在达到 `longContextThreshold` 之前，使用 `default` 模型。临近阈值时自动切换到 `longContext` 模型，此时压缩阈值已根据长上下文模型配置好。
 
-**场景3: 多模型动态切换**
+**场景3: 无长上下文模型**
 
-当使用 `/model` 命令切换模型时，系统根据当前 default 模型的配置自动调整压缩行为，无需手动干预。
+如果未配置 `longContext` 模型或未设置其 `contextSize`，则不设置 `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`，使用 Claude Code 默认行为。
 
 ### 7.7 技术特性
 
@@ -1379,6 +1380,11 @@ if (contextSizeInput.trim() !== '') {
 - `contextSize` 为可选字段
 - 不配置时使用默认行为
 - 不影响现有配置
+
+**计算基准:**
+- 基于 `Router.longContext` 模型
+- 因为临近阈值会自动切换到长上下文模型
+- 未配置长上下文模型时不设置环境变量
 
 **性能优化:**
 - 配置读取时一次性计算
